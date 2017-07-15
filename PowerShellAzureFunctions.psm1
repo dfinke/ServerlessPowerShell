@@ -2,8 +2,12 @@
 
 function Invoke-AzureLogin {
     try {
-        $null = Get-AzureRmContext
-    } catch {
+        $ctx = Get-AzureRmContext
+        if (!$ctx.Subscription) {
+            $null = Login-AzureRmAccount
+        }
+    }
+    catch {
         $null = Login-AzureRmAccount
     }
 }
@@ -32,9 +36,9 @@ function Get-Sitename {
  
         $null, $null, $subscriptionId, $null, $ResourceGroupName, $null, $null, $null, $SiteName = $name.split('/')
         [PSCustomObject][Ordered]@{
-            SubscriptionId = $subscriptionId
+            SubscriptionId    = $subscriptionId
             ResourceGroupName = $ResourceGroupName
-            SiteName = $SiteName 
+            SiteName          = $SiteName 
         }
     }
 }
@@ -80,39 +84,28 @@ function Invoke-DeployAzureFunction {
         $SourceFileContent = Get-Content -Raw $SourceFile
 
         $props = @{
-            config = @{"bindings" = @(
+            config = @{
+                "bindings" = @(
                     @{
-                        "name" = "req"
-                        "type" = "httpTrigger"
+                        "name"      = "req"
+                        "type"      = "httpTrigger"
                         "direction" = "in"
                         "authLevel" = "function"
                     }
                     @{
-                        "name" = "res"
-                        "type" = "http"
+                        "name"      = "res"
+                        "type"      = "http"
                         "direction" = "out"
                     }
                 )
-                "disabled" = "false"
             }
         }
 
         switch ($extensionName) {
-            "ps1" {
-                $functionFileName = "run.ps1"
-            }
-
-            "js" {
-                $functionFileName = "index.js"
-            }
-
-            "cs" {
-                $functionFileName = "run.csx"
-            }    
-
-            "fs" {
-                $functionFileName = "run.fsx"
-            }    
+            "ps1" { $functionFileName = "run.ps1"  }
+            "js" { $functionFileName = "index.js" }
+            "cs" { $functionFileName = "run.csx"  }
+            "fs" { $functionFileName = "run.fsx"  }    
         }    
 
         $props.files = @{$functionFileName = "$SourceFileContent"}        
@@ -124,8 +117,10 @@ function Invoke-DeployAzureFunction {
             $ResourceGroupName = ($baseResourceID -split '/')[4]            
             Write-Verbose "Deploying $($fileName) to $($targetSite) in resource group $($ResourceGroupName)"            
 
-            $r = New-AzureRmResource -ResourceId $newResourceId -ApiVersion 2015-08-01 -Properties $props -Force    
-            GetFunctionInvokeUrl $ResourceGroupName $targetSite $FunctionName | ForEach-Object trigger_url
+            $null = New-AzureRmResource -ResourceId $newResourceId -ApiVersion 2015-08-01 -Properties $props -Force    
+
+            GetFunctionInvokeUrl $ResourceGroupName $targetSite $FunctionName |
+                ForEach-Object trigger_url
         }
     }
 }
