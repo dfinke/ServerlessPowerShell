@@ -1,5 +1,36 @@
 . $PSScriptRoot\SiteNameArgumentCompleter.ps1
 
+$httpTrigger = @{
+    config = @{
+        "bindings" = @(
+            @{
+                "name"      = "req"
+                "type"      = "httpTrigger"
+                "direction" = "in"
+                "authLevel" = "function"
+            }
+            @{
+                "name"      = "res"
+                "type"      = "http"
+                "direction" = "out"
+            }
+        )
+    }
+}
+
+$timerTrigger = @{
+    config = @{
+        "bindings" = @(
+            @{
+                "name"      = "myTimer"
+                "type"      = "timerTrigger"
+                "direction" = "in"                     
+                "schedule"  = "0 */5 * * * *"
+            }
+        )
+    }
+}
+
 function Invoke-AzureLogin {
     try {
         $ctx = Get-AzureRmContext
@@ -50,7 +81,9 @@ function Invoke-DeployAzureFunction {
         $SiteName,
         [Parameter(ValueFromPipelineByPropertyName)]
         [Alias('FullName')]
-        $SourceFile
+        $SourceFile,
+        [ValidateSet('HttpTrigger','TimerTrigger')]
+        $TriggerType="HttpTrigger" 
     )
 
     Begin {
@@ -83,31 +116,20 @@ function Invoke-DeployAzureFunction {
 
         $SourceFileContent = Get-Content -Raw $SourceFile
 
-        $props = @{
-            config = @{
-                "bindings" = @(
-                    @{
-                        "name"      = "req"
-                        "type"      = "httpTrigger"
-                        "direction" = "in"
-                        "authLevel" = "function"
-                    }
-                    @{
-                        "name"      = "res"
-                        "type"      = "http"
-                        "direction" = "out"
-                    }
-                )
-            }
+        $map = @{
+            "ps1" = "run.ps1"  
+            "js"  = "index.js" 
+            "cs"  = "run.csx"  
+            "fs"  = "run.fsx"     
         }
 
-        switch ($extensionName) {
-            "ps1" { $functionFileName = "run.ps1"  }
-            "js" { $functionFileName = "index.js" }
-            "cs" { $functionFileName = "run.csx"  }
-            "fs" { $functionFileName = "run.fsx"  }    
-        }    
+        $functionFileName=$map.($extensionName)
 
+        switch($TriggerType) {
+            "HttpTrigger"  {$props=$httpTrigger}
+            "TimerTrigger" {$props=$timerTrigger}
+        }
+        
         $props.files = @{$functionFileName = "$SourceFileContent"}        
 
         foreach ($targetSite in $SiteName) {
@@ -119,8 +141,11 @@ function Invoke-DeployAzureFunction {
 
             $null = New-AzureRmResource -ResourceId $newResourceId -ApiVersion 2015-08-01 -Properties $props -Force    
 
-            GetFunctionInvokeUrl $ResourceGroupName $targetSite $FunctionName |
-                ForEach-Object trigger_url
+            if($TriggerType -eq "HttpTrigger") {
+                GetFunctionInvokeUrl $ResourceGroupName $targetSite $FunctionName |
+                    ForEach-Object trigger_url
+            }
+            Write-Verbose "Function deployed"
         }
     }
 }

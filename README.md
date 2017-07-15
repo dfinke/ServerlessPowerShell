@@ -1,8 +1,6 @@
 # ServerlessPowerShell
 PowerShell module that let's you easily deploy PowerShell scripts (and more) as Azure http trigger functions.
 
-Saw this https://github.com/wbuchwalter/azul and built this.
-
 ## Deploy and Test PowerShell Azure Function
 ![](./media/InvokeDeployAzureFunction.gif)
 
@@ -14,4 +12,3 @@ Saw this https://github.com/wbuchwalter/azul and built this.
 `C#`, `F#`, `JavaScript`, and `PowerShell`
 
 ![](./media/DeployMultiple.gif)
-
