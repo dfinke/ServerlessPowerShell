@@ -82,8 +82,8 @@ function Invoke-DeployAzureFunction {
         [Parameter(ValueFromPipelineByPropertyName)]
         [Alias('FullName')]
         $SourceFile,
-        [ValidateSet('HttpTrigger','TimerTrigger')]
-        $TriggerType="HttpTrigger" 
+        [ValidateSet('HttpTrigger', 'TimerTrigger')]
+        $TriggerType = "HttpTrigger" 
     )
 
     Begin {
@@ -123,11 +123,11 @@ function Invoke-DeployAzureFunction {
             "fs"  = "run.fsx"     
         }
 
-        $functionFileName=$map.($extensionName)
+        $functionFileName = $map.($extensionName)
 
-        switch($TriggerType) {
-            "HttpTrigger"  {$props=$httpTrigger}
-            "TimerTrigger" {$props=$timerTrigger}
+        switch ($TriggerType) {
+            "HttpTrigger" {$props = $httpTrigger}
+            "TimerTrigger" {$props = $timerTrigger}
         }
         
         $props.files = @{$functionFileName = "$SourceFileContent"}        
@@ -141,7 +141,7 @@ function Invoke-DeployAzureFunction {
 
             $null = New-AzureRmResource -ResourceId $newResourceId -ApiVersion 2015-08-01 -Properties $props -Force    
 
-            if($TriggerType -eq "HttpTrigger") {
+            if ($TriggerType -eq "HttpTrigger") {
                 GetFunctionInvokeUrl $ResourceGroupName $targetSite $FunctionName |
                     ForEach-Object trigger_url
             }

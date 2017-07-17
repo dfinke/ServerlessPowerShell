@@ -1,0 +1,1 @@
+"Hello World from a PowerShell Azure Function" > $res
