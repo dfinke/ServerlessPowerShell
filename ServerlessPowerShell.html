@@ -1,0 +1,43 @@
+<h1 id="rapidly-deploy-servereless-azure-functions-using-powershell">Rapidly deploy Servereless Azure Functions using PowerShell</h1>
+<p><code>Invoke-DeployAzureFunction -SiteName MyAzureFunction -SourceFile GetDBData.ps1</code></p>
+<p>That's it! This publishes your PowerShell script to the Cloud as Serverless Azure function that can be accessed as a REST API endpoint. This also works for C#, Javascript, F#, TypeScript, Python or any other language Azure Functions supports.</p>
+<p>Plus, you can also post your code as a Timer Trigger (fork this on GitHub and you can automate it to deploy woith other supported triggers).</p>
+<h2 id="serverless-azure-functions">Serverless Azure Functions</h2>
+<p>Serverless is one of the next waves and Azure Functions peel away much of the complication and significantly reduces your DevOps activities. Remember, it is not a silver bullet.</p>
+<p>You can quickly spin up a server in the Azure cloud, take a snippet of code, PowerShell in this example, and make it available as a REST endpoint. Think of all the steps you'd need to do that even on your local machine. Almost all of this is abstracted away for you in the cloud. Here are the benefits</p>
+<ul>
+<li>Reduced complexity in provisioning the environment. Plus, your code has to do little work to interact as a REST API</li>
+<li>Mutiple bindings can be applied to different implementation languages. Your PowerShell, C#, JavaScript can be a HTTP Trigger, Timer Trigger or other. All described in a JSON binding file.</li>
+<li>Faster time to market - After a little practice, you'll be able to spin up news ideas in minutes, reachable from anywhere, from any language</li>
+<li>Fewer lines of code - You'll be pleasantly surprised with the types of features you can create, with PowerShell (and other languages) in a page of code.</li>
+<li>Mix and match languages in different functions to provide a range of solutions - In a single Azure function app, you can deploy as many functions as you'd like in any of these languages, Bash, Batch, C#, F#, JavaScript, PHP, PowerShell, Python, or TypeScript.</li>
+</ul>
+<p>Plus, they can all be rapidly deployed with this PowerShell module.</p>
+<h2 id="the-powershell-module">The PowerShell Module</h2>
+<p>The <code>PowerShellAzureFunctions</code> module makes quick work of deploying your Azure Function to an already existing <code>function app</code>. See <a href="https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-function-app-portal">Create a function app from the Azure portal</a>.</p>
+<p><code>Invoke-DeployAzureFunction</code> takes two parameters, the <code>SourceFile</code> you want to deploy and the <code>SiteName</code>, which is your <code>function app</code>, where you want to deploy to. <code>Invoke-DeployAzureFunction</code> also has built features to make it easier and your life simpler. For example, it detects if you're already logged into Azure, if you're not, it will prompt you to login. Plus, the <code>SiteName</code> parameter will present you with a list of the <code>function apps</code> you have already provisioned in your Azure subscription. This way you don't have to leave the console to get a list of sites where you can deploy.</p>
+<p>There is a third parameter <code>TriggerType</code>. It can be either <code>HttpTrigger</code> or <code>TimerTrigger</code>. Choosing either will deploy a <code>function.json</code> file with the appropriate binding JSON.</p>
+<p>Lastly, after the deployment is complete, if you chose <code>HttpTrigger</code> for the <code>TriggerType</code>, <code>Invoke-DeployAzureFunction</code> will output the <strong><em>url</em></strong> of the function you deployed so you can quickly hit that REST endpoint.</p>
+<div class="figure">
+<img src=".\HelloWorld.png" alt="" />
+
+</div>
+<h2 id="deploy-more-than-one-function">Deploy More Than One Function</h2>
+<p>Demos the creation of multiple function in the same Azure Function App. They can be a mix of programming languages, or all of the same language.</p>
+<div class="figure">
+<img src=".\MultipleLanguages.png" alt="" />
+
+</div>
+<h2 id="the-powershell-module-in-action">The PowerShell Module in Action</h2>
+<div class="figure">
+<img src="https://raw.githubusercontent.com/dfinke/ServerlessPowerShell/master/media/DeployMultiple.gif" alt="" />
+
+</div>
+<h2 id="required">Required</h2>
+<p>In order to get this to work you need the following:</p>
+<ul>
+<li>PowerShell</li>
+<li>Azure Cmdlets (<a href="https://docs.microsoft.com/en-us/powershell/azure/install-azurerm-ps?view=azurermps-4.2.0">Install</a>)</li>
+<li>An Azure subscription</li>
+</ul>
+<p>Finally, grab <a href="https://github.com/dfinke/ServerlessPowerShell">my PowerShell module</a> that let's you rapidly deploy PowerShell scripts as Azure functions.</p>
