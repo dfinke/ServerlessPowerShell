@@ -74,13 +74,13 @@ function Get-Sitename {
     }
 }
 
-function Invoke-DeployAzureFunction {
+function Publish-AzureFunction {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
         $SiteName,
-        [Parameter(ValueFromPipelineByPropertyName)]
-        [Alias('FullName')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        [Alias('PSPath')]
         $SourceFile,
         [ValidateSet('HttpTrigger', 'TimerTrigger')]
         $TriggerType = "HttpTrigger" 
@@ -149,3 +149,5 @@ function Invoke-DeployAzureFunction {
         }
     }
 }
+
+Set-Alias Invoke-DeployAzureFunction Publish-AzureFunction
